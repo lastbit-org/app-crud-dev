@@ -9,7 +9,7 @@ function App() {
 
   const getData =async () => {
 
-    const res = await fetch('http://localhost:3000/api/data')
+    const res = await fetch('http://localhost:8080/api/data')
     const response = await res.json()
     console.log(response)
     setData(response.message)
