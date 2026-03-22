@@ -1,0 +1,12 @@
+{
+  "name": "app-crud-dev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently 'cd backend &&  npm run start' 'cd frontend && npm run dev'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
