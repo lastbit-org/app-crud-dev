@@ -8,8 +8,8 @@ function App() {
 
 
   const getData =async () => {
-
-    const res = await fetch('http://localhost:8080/api/data')
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const res = await fetch(`${baseUrl}/api/data`)
     const response = await res.json()
     console.log(response)
     setData(response.message)

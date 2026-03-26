@@ -8,7 +8,7 @@ on:
 env:
   PROJECT_ID: lastbit-prj-d-movieapi
   REGION: us-central1
-  ARTIFACT_REGISTRY: movieapi
+  ARTIFACT_REGISTRY: repo
   IMAGE_NAME: img-crud-frontend
   RUN_SERVICE_NAME: run-crud-frontend
 
