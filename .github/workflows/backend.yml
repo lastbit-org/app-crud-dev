@@ -52,4 +52,5 @@ jobs:
             --region ${{ env.REGION }} \
             --platform managed \
             --project ${{ env.PROJECT_ID }} \
-            --allow-unauthenticated
+            --allow-unauthenticated \
+            --set-env-vars FRONTEND_URL="https://run-crud-frontend-226965473545.us-central1.run.app"
