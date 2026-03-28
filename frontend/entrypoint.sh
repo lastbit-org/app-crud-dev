@@ -5,6 +5,9 @@
 # Se VITE_API_BASE_URL não estiver definida, usa fallback
 API_URL="${VITE_API_BASE_URL:-http://localhost:8080}"
 
+# Sanitiza: remove aspas, cifroes e barras invertidas que poderiam injetar código
+API_URL=$(printf '%s' "$API_URL" | tr -d '"'\'\\\\)
+
 # Sobrescreve o config.js com o valor real vindo do Cloud Run
 cat > /usr/share/nginx/html/config.js << EOF
 window.__APP_CONFIG__ = {

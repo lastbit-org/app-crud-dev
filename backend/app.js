@@ -14,9 +14,14 @@ const app = express();
 
 app.use(helmet());
 
+// Confia no proxy reverso (Cloud Run / nginx) para obter IP real do cliente
+app.set("trust proxy", 1);
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 100, // limite de 100 requisições por IP a cada 15 min
+  standardHeaders: true,  // Retorna info em cabeçalhos RateLimit-*
+  legacyHeaders: false,   // Desabilita cabeçalhos X-RateLimit-* legados
 });
 // Limita as rotas da API
 app.use("/api", limiter);
@@ -34,10 +39,13 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
 app.use(cors(corsOptions));
-app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+// Em produção usa 'combined' (formato Apache) para não vazar detalhes internos
+app.use(logger(app.get("env") === "production" ? "combined" : "dev"));
+// Limita tamanho do body a 10kb para evitar ataques de payload gigante
+app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: false, limit: "10kb" }));
+// Assina cookies com secret para garantir integridade
+app.use(cookieParser(process.env.COOKIE_SECRET || "changeme-in-production"));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api/data", indexRouter);
