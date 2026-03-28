@@ -18,6 +18,11 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # COPIAR o nosso arquivo customizado de configuração (Ouvindo na 8080 para Cloud Run)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+# Copiar entrypoint que injeta variáveis de ambiente em runtime
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 8080
 
-CMD ["nginx", "-g", "daemon off;"]
+# Usa entrypoint para injetar config antes de iniciar o nginx
+ENTRYPOINT ["/entrypoint.sh"]
