@@ -1,6 +1,5 @@
 const createError = require("http-errors");
 const express = require("express");
-const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
@@ -34,9 +33,8 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-// view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "pug");
+// Health check — necessário para o Cloud Run/Load Balancer validar o serviço
+app.get("/health", (req, res) => res.status(200).json({ status: "ok" }));
 
 app.use(cors(corsOptions));
 // Em produção usa 'combined' (formato Apache) para não vazar detalhes internos
@@ -46,7 +44,6 @@ app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: false, limit: "10kb" }));
 // Assina cookies com secret para garantir integridade
 app.use(cookieParser(process.env.COOKIE_SECRET || "changeme-in-production"));
-app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api/data", indexRouter);
 app.use("/api/users", usersRouter);
@@ -56,15 +53,18 @@ app.use(function (req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// Error handler — retorna sempre JSON (backend de API puro, sem template)
 app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
+  const status = err.status || 500;
+  const isDev = app.get("env") === "development";
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render("error");
+  res.status(status).json({
+    error: {
+      message: err.message || "Internal Server Error",
+      // Stack trace apenas em desenvolvimento para não vazar informações
+      ...(isDev && { stack: err.stack }),
+    },
+  });
 });
 
 module.exports = app;
